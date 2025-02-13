@@ -42,19 +42,26 @@ client.on('interactionCreate', async (interaction) => {
         ],
       });
 
-      // Send the question to the Gemini AI model
-      const result = await model.generateContent({
-        contents: [
-          {
-            role: 'user',
-            parts: [{ text: userQuestion }]
+      const TIME_LIMIT = 10 * 1000;
+
+      const aiResponse = Promise.race([
+        model.generateContent({
+          contents: [
+            { 
+              role: 'user', 
+              parts: [{ text: userQuestion }] 
+            }
+          ],
+          generationConfig: 
+          { 
+            maxOutputTokens: 1000, 
+            temperature: 0.7 
           }
-        ],
-        generationConfig: {
-          maxOutputTokens: 1000,
-          temperature: 0.7,
-        }
-      });
+        }),
+        new Promise((_, reject) => setTimeout(() => reject(new Error("TIMEOUT")), TIME_LIMIT))
+      ]);
+
+      const result = await aiResponse;
       const responseText = result.response.text();
 
       // Send the response to the Discord bot 
@@ -66,6 +73,12 @@ client.on('interactionCreate', async (interaction) => {
       console.log(`Gemini AI responded: ${responseText}`);
     } catch (error) {
       console.error(error);
+      let errorMessage = "❌ An error occurred while processing your request.";
+      if (error.message === "TIMEOUT") {
+        errorMessage = "⏳ AI is taking too long to respond. Please try again later.";
+      }
+
+      await interaction.editReply({ content: errorMessage });
     }
   }
 });

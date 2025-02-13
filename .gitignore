@@ -13,3 +13,4 @@ __pycache__/
 
 # Bỏ qua các file log và cache
 
+.vercel
