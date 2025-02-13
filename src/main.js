@@ -29,18 +29,6 @@ client.on('interactionCreate', async (interaction) => {
     const userQuestion = interaction.options.getString('question');
 
     try {
-      const chat = model.startChat({
-        history: [
-          {
-            role: "user",
-            parts: [{ text: userQuestion }],
-          },
-          {
-            role: "model",
-            parts: [{ text: "I am an AI that can answer your questions." }],
-          }
-        ],
-      });
 
       const TIME_LIMIT = 10 * 1000;
 
