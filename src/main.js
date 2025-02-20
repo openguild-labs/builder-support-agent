@@ -1,11 +1,5 @@
 const { Client, IntentsBitField } = require('discord.js');
 const { GoogleGenerativeAI } = require("@google/generative-ai");
-const { Chroma } = require('chromadb');
-const { RecursiveCharacterTextSplitter } = require('langchain/text_splitter');
-const { RetrievalQAWithSourcesChain } = require('langchain/chains')
-const { Document } = require('langchain/document');
-const fs = require('fs');
-const path = require('path');
 const axios = require('axios');
 const cheerio = require('cheerio');
 
@@ -21,32 +15,6 @@ const client = new Client({
   ],
 });
 
-const repoPath = "../docs/";
-
-function readMarkdownFiles(directory) {
-  if (!fs.existsSync(directory)) {
-    console.log(`❌ Thư mục không tồn tại: ${directory}`);
-    return [];
-  }
-
-  const allDocuments = [];
-  const files = fs.readdirSync(directory);
-
-  files.forEach((file) => {
-    if (file.endsWith('.md')) {
-      const filePath = path.join(directory, file);
-      try {
-        const content = fs.readFileSync(filePath, 'utf-8');
-        const doc = new Document({ page_content: content, metadata: { source: filePath } });
-        allDocuments.push(doc);
-      } catch (error) {
-        console.error(`❌ Không đọc được file ${filePath}: ${error}`);
-      }
-    }
-  });
-
-  return allDocuments
-}
 // Function to get latest commits from GitHub
 async function getLatestCommits() {
   const { Octokit } = await import("@octokit/rest");
@@ -57,7 +25,7 @@ async function getLatestCommits() {
     per_page: 5,
   });
 
-  const commitMessages = [];
+  const commitMessages = []
 
   for (const commit of commits) {
     const { data: commitDetails } = await octokit.repos.getCommit({
@@ -84,22 +52,27 @@ async function getLatestBlogPosts() {
     const response = await axios.get('https://polkadot.network/blog');
     const $ = cheerio.load(response.data);
 
-    const posts = [];
-    $('.col-span-full').each((i, element) => {
-      const title = $(element).find('h2').text().trim();
-      const link = $(element).find('h2 a').attr('href');
-      if (title && link) {
-        posts.push(`**New Blog Post:** ${title}\n**Link:** https://polkadot.network${link}`);
-      }
-    });
+    const firstPost = $('h2 a').first();
 
-    return posts.slice(0, 1).join('\n\n');
+    if (!firstPost.length) {
+      console.log("❌ Không tìm thấy bài viết nào.");
+      return null;
+    }
+    const title = firstPost.text().trim();
+    let link = firstPost.attr('href');
+
+    if (!link) {
+      console.log("⚠️ Không tìm thấy đường link.");
+      return null;
+    }
+
+    link = link.startsWith('http') ? link : `https://polkadot.network${link}`;
+    return [{ title, link }];
   } catch (error) {
     console.error(`⚠️ Error fetching the blog page: ${error}`);
-    return '⚠️ Error fetching the blog page.';
+    return [];
   }
 }
-
 
 // Function ready discord
 client.on('ready', () => {
@@ -169,7 +142,14 @@ client.on('interactionCreate', async (interaction) => {
         await interaction.editReply({ content: commits });
       } else if (subCommand === 'blog') {
         const blogPosts = await getLatestBlogPosts();
-        await interaction.editReply({ content: blogPosts });
+        if (blogPosts.length === 0) {
+          await interaction.editReply({ content: '❌ No blog posts found.' });
+          return;
+        } else {
+          const formattedPosts = blogPosts.map(post => `📰 **${post.title}**\n🔗 ${post.link}`).join("\n\n");
+          console.log(formattedPosts);
+          await interaction.editReply({ content: formattedPosts });
+        }
       }
     } catch (error) {
       console.error(error);
