@@ -8,6 +8,7 @@
   - [Codebase Structure](#codebase-structure)
   - [Installation](#installation)
   - [LLMs Features](#llms-features)
+  - [URLs](#urls)
 
 ## Description
 
@@ -68,3 +69,11 @@ Delivering Results & Learning:
 - The chatbot replies with clear, concise, and accurate answers.
 - Context is stored for maintaining conversation history.
 - Logs are recorded to enhance chatbot performance over time.
+
+## URLs
+
+- [Blogs Polkadot](https://polkadot.network/blog)
+- [FAQs Polkadot](https://wiki.polkadot.network/docs/faq)
+- Repos tracking:
+  - [Polkadot Wiki](https://github.com/w3f/polkadot-wiki)
+  - [Paritytech Polkadot](https://github.com/paritytech/polkadot)
