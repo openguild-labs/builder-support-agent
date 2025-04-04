@@ -1,10 +1,10 @@
-# Gemini Discord Bot
+# Open Guild Discord Bot
 
 A powerful Discord bot integrating Gemini AI and OpenAI Assistant for community support, news sharing, and engagement.
 
 ## Table of Contents
 
-- [Gemini Discord Bot](#gemini-discord-bot)
+- [Open Guild Discord Bot](#open-guild-discord-bot)
   - [Table of Contents](#table-of-contents)
   - [Description](#description)
   - [Features](#features)
