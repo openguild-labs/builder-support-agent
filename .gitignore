@@ -1,16 +1,7 @@
-# Bỏ qua thư mục node_modules và file package-lock.json
-node_modules/
-package-lock.json
 
-# Bỏ qua các file môi trường của Python
-.env
-*.env
-venv/
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
+.env
 
-# Bỏ qua các file log và cache
+env/
 
-.vercel
+*.log
